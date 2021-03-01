@@ -9,8 +9,7 @@ LEAN Installer script as a alternative for default `void-installer`.
 - Include: `GIT` and `GRUB` packages
 - Enable automatically DHCP (and internet work on next reboot)
 - Option to enable SSH server and Wipe Device
-- `/home` partition separated from `/`
-- With file system options (`ext2`, `ext3`, `ext4` and `xfs`) to format `/` and `/home` partitions
+- With file system options (`ext2`, `ext3`, `ext4` and `xfs`) to format `/` partition
 - `sudo poweroff` and `sudo restart` without password
 - Swappiness option enabled (but not working - I guess that is a BUG)
 - Best for Desktops or Notebooks
@@ -48,10 +47,8 @@ LEAN Installer script as a alternative for default `void-installer`.
 - [ ] Finish installation glibc crypto with lvm
 - [ ] Validate with glibc and musl installation
 - [ ] Add flag to crypt or normal installation
-- [ ] Include brazilian portuguese language option (and `us` too with International English)
 - [ ] Option to scape partitioning and formating device
 - [ ] Verifiy if SWAP is cryptographied (see https://wiki.archlinux.org/index.php/Dm-crypt/Swap_encryption)
-- [ ] Add /home as a cryptographied partition (only /boot and / are cryptografied). See void-install-uefi on Joplin
 - [ ] Insert a for loop to open and crypto partitions (starting in "echo "[!] Encrypt boot partition"" line - like in "for FS in ${!LV[@]}; do" line)
 - [ ] Option to install with local repository
 - [ ] Add TXT files with Keymaps, Timezone, Lang, etc....in root directory as reference

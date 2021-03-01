@@ -26,7 +26,7 @@ REPO='http://mirror.clarkson.edu/voidlinux'
 # UPDATETYPE='-Sy' # If GenuineIntel update local repository and change the next one to only '-y'
 
 # PARTITIONS SIZE (M for Megabytes, G for Gigabytes)
-EFISIZE='512M' # 512MB for /boot/efi should be sufficient to host 7 to 8 kernel versions
+EFISIZE='512M' # 512MB for /boot/efi should be sufficient
 SWAPSIZE='1G'
 ROOTSIZE='6G'
 
@@ -82,7 +82,7 @@ echo ''
 echo 'FILE SYSTEM TYPE SELECTION'
 echo ''
 PS3='Select the file system type to format partitions (type the number option): '
-filesystems='ext2 ext3 ext4 xfs'
+filesystems='btrfs ext2 ext3 ext4 xfs'
 select filesysformat in $filesystems; do
   if [ ! -z $filesysformat ]; then
     FSYS=$filesysformat
@@ -118,15 +118,13 @@ if [ $UEFI -eq 1 ]; then
 EOF
   # FORMATING
   # In UEFI, format EFI partition as FAT32
-  mkfs.vfat -F 32 -n EFI ${DEV_PART_NAME}1
-  mkswap -L swp0 ${DEV_PART_NAME}2
-  mkfs.$FSYS -L voidlinux ${DEV_PART_NAME}3
-  mkfs.$FSYS -L home ${DEV_PART_NAME}4
+  mkfs.vfat -F 32 -n BOOT ${DEV_PART_NAME}1
+  mkswap -L SWAP ${DEV_PART_NAME}2
+  mkfs.$FSYS -L VOID ${DEV_PART_NAME}3
 
   # MOUNTING
   mount ${DEV_PART_NAME}3 /mnt
   mkdir /mnt/boot && mount ${DEV_PART_NAME}1 /mnt/boot
-  mkdir /mnt/home && mount ${DEV_PART_NAME}4 /mnt/home
 
   # When UEFI
   mkdir /mnt/boot/efi && mount ${DEV_PART_NAME}1 /mnt/boot/efi
@@ -138,13 +136,11 @@ else
     ,,L
 EOF
   # FORMATING
-  mkswap -L swp0 ${DEV_PART_NAME}1
-  mkfs.$FSYS -L voidlinux ${DEV_PART_NAME}2
-  mkfs.$FSYS -L home ${DEV_PART_NAME}3
+  mkswap -L SWAP ${DEV_PART_NAME}1
+  mkfs.$FSYS -L VOID ${DEV_PART_NAME}2
 
   # MOUNTING
   mount ${DEV_PART_NAME}2 /mnt
-  mkdir /mnt/home && mount ${DEV_PART_NAME}3 /mnt/home
 fi
 ###### DISK PREPARATION - END ######
 
@@ -315,7 +311,6 @@ tmpfs /tmp  tmpfs defaults,nosuid,nodev 0 0
 $(blkid ${DEV_PART_NAME}1 | cut -d ' ' -f 4 | tr -d '"') /boot vfat  rw,fmask=0133,dmask=0022,noatime,discard  0 2
 $(blkid ${DEV_PART_NAME}2 | cut -d ' ' -f 3 | tr -d '"') swap  swap  commit=60,barrier=0  0 0
 $(blkid ${DEV_PART_NAME}3 | cut -d ' ' -f 3 | tr -d '"') / $FSYS rw,noatime,discard,commit=60,barrier=0 0 1
-$(blkid ${DEV_PART_NAME}4 | cut -d ' ' -f 3 | tr -d '"') /home $FSYS rw,discard,commit=60,barrier=0 0 2
 EOF
 else
   cat > /mnt/etc/fstab <<EOF
@@ -323,7 +318,6 @@ else
 tmpfs /tmp  tmpfs defaults,nosuid,nodev 0 0
 $(blkid ${DEV_PART_NAME}1 | cut -d ' ' -f 3 | tr -d '"') swap  swap  commit=60,barrier=0  0 0
 $(blkid ${DEV_PART_NAME}2 | cut -d ' ' -f 3 | tr -d '"') / $FSYS rw,noatime,discard,commit=60,barrier=0 0 1
-$(blkid ${DEV_PART_NAME}3 | cut -d ' ' -f 3 | tr -d '"') /home $FSYS rw,discard,commit=60,barrier=0 0 2
 EOF
 fi
 
